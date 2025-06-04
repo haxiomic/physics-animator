@@ -1,0 +1,50 @@
+{
+  "name": "physics-animator",
+  "version": "0.1.0",
+  "author": "haxiomic (George Corney)",
+  "license": "MIT",
+  "type": "module",
+  "description": "A TypeScript animation system grounded in physics with three.js and react support.",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./*": {
+      "types": "./dist/*/index.d.ts",
+      "import": "./dist/*/index.js"
+    }
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "prepack": "rm -rf dist && npm run build",
+    "build": "tsc",
+    "dev": "tsc --watch"
+  },
+  "devDependencies": {
+    "@types/react": "^19.0.12",
+    "typescript": "^5.0.0"
+  },
+  "dependencies": {
+    "@haxiomic/event-signal": "^1.0.0",
+    "use-initializer": "^1.0.2"
+  },
+  "peerDependencies": {
+    "@types/three": "x.x.x",
+    "react": ">=18.2.0",
+    "three": "x.x.x"
+  },
+  "peerDependenciesMeta": {
+    "@types/three": {
+      "optional": true
+    },
+    "three": {
+      "optional": true
+    },
+    "react": {
+      "optional": true
+    }
+  }
+}

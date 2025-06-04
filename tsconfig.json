@@ -1,0 +1,14 @@
+{
+    "compilerOptions": {
+        "strict": true,
+        "noEmit": false,
+        "module": "NodeNext",
+        "moduleResolution": "nodenext",
+        "allowArbitraryExtensions": true,
+        "declaration": true,
+        "jsx": "react",
+        "outDir": "./dist",
+        "allowJs": true,
+        "skipLibCheck": true,
+    }
+}
