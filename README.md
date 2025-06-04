@@ -23,6 +23,13 @@ const opacity = useSpringState({ initial: 0, target: 1, duration_s: 0.8 })
 return <div style={opacity} />
 ```
 
+It works with arrays and objects
+
+```tsx
+const rgb = useSpringState({ initial: [0, 0, 0], target: [1, 0, 0], duration_s: 0.8 })
+const xy = useSpringState({ initial: { x: 0, y: 0 }, target: {x: mouse.x, y: mouse.y}, duration_s: 0.1 })
+```
+
 Outside of react we use the animator object
 
 ```ts
@@ -35,9 +42,7 @@ animator.springTo(character, 'opacity', 1, { duration_s: 0.8 })
 We can animate three objects like vectors:
 
 ```ts
-character.position = new Vector3();
-const target = new Vector3(1, 1, 1);
-animator.springTo(character, 'position', target, { duration_s: 2 })
+animator.springTo(character, 'rotation', new Quaternion(), { duration_s: 2 })
 ```
 
 Velocity state is stored within the animator object

@@ -93,12 +93,16 @@ export class Animator {
 		});
 	}
 
-	onAllComplete<Obj>(object: Obj, callback: (object: Obj) => void) {
-		return this._onObjectAnimationsComplete.addListener(e => {
+	onAllComplete<Obj>(object: Obj, callback: (object: Obj) => void, once?: 'once') {
+		let listener = this._onObjectAnimationsComplete.addListener(e => {
 			if (e.object === object) {
 				callback(object);
+				if (once) {
+					listener.remove();
+				}
 			}
 		});
+		return listener;
 	}
 
 	private _springState = { x: 0, targetX: 0, v: 0 };
@@ -161,9 +165,7 @@ export class Animator {
 			}
 		});
 
-		if (this.onAfterStep.hasListeners()) {
-			this.onAfterStep.dispatch({dt_s});
-		}
+		this.onAfterStep.dispatch({dt_s});
 	}
 
 	private t_last = -1;

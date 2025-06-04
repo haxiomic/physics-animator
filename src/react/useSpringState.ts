@@ -9,12 +9,12 @@ import { SpringParameters } from "../Spring.js";
  * 
  * See {@link useSpringValue} for a version that does not cause re-renders.
  */
-export function useSpringState(
+export function useSpringState<T extends number | number[] | { [field: PropertyKey]: number }>(
     options: {
-        animator?: Animator; // Animator type can be specified if available
-        initial: number;
-        target: number;
-    } & SpringParameters
+        animator?: Animator,
+        initial: T;
+        target: T;
+    } & SpringParameters,
 ) {
     const [state, setState] = useState(options.initial);
     useSpringValue(options, setState);
