@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Spring Animation Grid Demo</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 30px;
+      font-family: system-ui, -apple-system, sans-serif;
+      background: #f5f5f5;
+      color: #333;
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 60px;
+    }
+
+    .header h1 {
+      margin: 0 0 10px;
+      font-size: 2em;
+      font-weight: 500;
+    }
+
+    .header p {
+      margin: 0;
+      color: #666;
+    }
+
+    .demo-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .grid-container {
+      position: relative;
+      background: white;
+      border-radius: 8px;
+      padding: 5px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      user-select: none;
+    }
+
+    .axis-label {
+      position: absolute;
+      font-size: 20px;
+      color: #666;
+      font-weight: 500;
+    }
+
+    .x-axis-label {
+      top: -10px;
+      left: 50%;
+      transform: translateX(-50%) translateY(-100%);
+    }
+
+    .y-axis-label {
+      left: -70px;
+      top: 50%;
+      transform: translateY(-50%) rotate(-90deg);
+      transform-origin: center;
+    }
+
+    .cell {
+      position: absolute;
+      cursor: pointer;
+      box-sizing: border-box;
+    }
+
+    .inner-cell {
+      position: absolute;
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+      overflow: hidden;
+      align-items: center;
+      justify-content: center;
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: bold;
+      text-align: center;
+      line-height: 1.1;
+      color: rgba(0, 0, 0, 0.7);
+      border: 1px solid rgba(0, 0, 0, 0.1);
+    }
+
+    .inner-cell label {
+      font-size: 8px;
+      font-weight: normal;
+      margin-bottom: 2px;
+    }
+
+    .inner-cell div {
+      display: flex;
+      flex-direction: column;
+    }
+  </style>
+
+  <script type="importmap">
+    {
+      "imports": {
+        "physics-animator": "./dist/esm/index.js",
+        "physics-animator/react": "./dist/esm/react/index.js",
+        "physics-animator/three": "./dist/esm/three/index.js"
+      },
+      "scopes": {
+        "./dist/esm/": {
+          "@haxiomic/event-signal": "./node_modules/@haxiomic/event-signal/dist/esm/EventSignal.js"
+        }
+      }
+    }
+  </script>
+</head>
+<body>
+  <div class="header">
+    <h1>Spring Animation Grid</h1>
+    <p>Hover over and click cells to explore spring physics with different duration and bounce parameters</p>
+  </div>
+
+  <div class="demo-container">
+    <div class="grid-container">
+      <div class="axis-label x-axis-label">Duration →</div>
+      <div class="axis-label y-axis-label">← Bounce</div>
+      <div id="animation-grid"></div>
+    </div>
+  </div>
+
+  <script type="module">
+    // @ts-check
+    import { Animator } from "physics-animator";
+
+    const animator = new Animator();
+    animator.startAnimationFrameLoop();
+
+    const container = document.getElementById("animation-grid");
+    if (!container) {
+      throw new Error("Container element not found");
+    }
+    const columns = 8;
+    const rows = 8;
+    const cellSize = 70;
+    const padding = 3;
+
+    container.style.position = "relative";
+    container.style.width = `${columns * cellSize}px`;
+    container.style.height = `${rows * cellSize}px`;
+
+    const clamp = val => Math.max(0, Math.min(255, val));
+
+    for (let i = 0; i < columns; i++) {
+      for (let j = 0; j < rows; j++) {
+        const u = (i + 1) / columns;
+        const v = j / (rows - 1);
+        const duration_s = 2 * u * u;
+        const bounce = v * v * 15 * u;
+
+        const springParams = { duration_s, bounce };
+
+        const cell = document.createElement("div");
+        cell.className = "cell";
+        cell.style.width = `${cellSize}px`;
+        cell.style.height = `${cellSize}px`;
+        cell.style.padding = `${padding}px`;
+        cell.style.transform = `translate(${i * cellSize}px, ${j * cellSize}px)`;
+        container.appendChild(cell);
+
+        const inner = document.createElement("div");
+        inner.className = "inner-cell";
+        inner.style.width = `${cellSize - 2 * padding}px`;
+        inner.style.height = `${cellSize - 2 * padding}px`;
+        inner.innerHTML = `
+          <label>Duration</label>
+          <div class="values">
+            <span>${duration_s.toFixed(2)}</span>
+            <span>${bounce.toFixed(2)}</span>
+          </div>
+          <label>Bounce</label>
+        `;
+
+        /** @type {HTMLDivElement | null} */
+        const valuesDiv = inner.querySelector(".values");
+        if (!valuesDiv) {
+          throw new Error("Values div not found in inner cell");
+        }
+
+        const hue = (i / columns) * 240 + (j / rows) * 120;
+        const saturation = 0.6 + (i + j) / (columns + rows) * 0.4;
+        const lightness = 0.7 - ((i + j) / (columns + rows)) * 0.2;
+
+        function cosineMix(h, offset, lightness, saturation) {
+          return lightness + saturation * Math.cos((h + offset) * Math.PI / 180) * 0.3;
+        }
+
+        const r = clamp(Math.floor(255 * cosineMix(hue, 0, lightness, saturation)));
+        const g = clamp(Math.floor(255 * cosineMix(hue, 120, lightness, saturation)));
+        const b = clamp(Math.floor(255 * cosineMix(hue, 240, lightness, saturation)));
+
+
+        inner.style.backgroundColor = `rgb(${r}, ${g}, ${b})`;
+        inner.style.color = `rgb(
+          ${clamp(Math.floor(255 * cosineMix(hue, 0, lightness * 0.5, saturation * 1.5)))},
+          ${clamp(Math.floor(255 * cosineMix(hue, 120, lightness * 0.5, saturation * 1.5)))},
+          ${clamp(Math.floor(255 * cosineMix(hue, 240, lightness * 0.5, saturation * 1.5)))}
+        )`;
+        valuesDiv.style.color = `rgb(
+          ${clamp(Math.floor(255 * cosineMix(hue, 0, lightness * .25, saturation * 1.5)))},
+          ${clamp(Math.floor(255 * cosineMix(hue, 120, lightness * .25, saturation * 1.5)))},
+          ${clamp(Math.floor(255 * cosineMix(hue, 240, lightness * .25, saturation * 1.5)))}
+        )`;
+
+        cell.appendChild(inner);
+
+        const defaultState = {
+          scale: 1,
+          opacity: 0.5,
+          zIndex: 0,
+          shadowOpacity: 0.0,
+        };
+
+        const hoveredState = {
+          scale: 1.5,
+          opacity: 1.0,
+          zIndex: 10,
+          shadowOpacity: 0.2,
+        };
+
+        const selectedState = {
+          scale: 4.0,
+          opacity: 1.0,
+          zIndex: 20,
+          shadowOpacity: 0.4,
+        };
+
+        const state = { ...defaultState };
+        let selected = false;
+
+        const update = () => {
+          inner.style.transform = `scale(${state.scale})`;
+          inner.style.opacity = String(state.opacity);
+          cell.style.zIndex = String(Math.max(Math.round(state.zIndex), 0));
+        };
+
+        update();
+        animator.events.afterStep.addListener(() => update());
+
+        cell.addEventListener("mouseenter", (e) => {
+          for (const key in defaultState) {
+            animator.springTo(state, key, (selected ? selectedState : hoveredState)[key], springParams);
+          }
+        });
+
+        cell.addEventListener("mouseleave", () => {
+          selected = false;
+          for (const key in defaultState) {
+            animator.springTo(state, key, defaultState[key], springParams);
+          }
+        });
+
+        cell.addEventListener("click", () => {
+          if (selected) {
+            // trigger copy of parameters to clipboard
+            const params = Object.entries(springParams)
+              .map(([key, value]) => `${key}: ${value.toFixed(4)}`)
+              .join(", ");
+            navigator.clipboard.writeText(`{ ${params} }`)
+              .then(() => console.log("Copied to clipboard:", params))
+              .catch(err => console.error("Failed to copy:", err));
+          }
+
+          selected = true;
+          for (const key in defaultState) {
+            animator.springTo(state, key, selectedState[key], springParams);
+          }
+        });
+
+        document.addEventListener("keydown", (event) => {
+          selected = false;
+          if (event.key === "Escape") {
+            for (const key in defaultState) {
+              animator.springTo(state, key, defaultState[key], springParams);
+            }
+          }
+        });
+      }
+    }
+  </script>
+</body>
+</html>
