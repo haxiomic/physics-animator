@@ -121,7 +121,7 @@ export class Animator {
 						springState.x = object[field];
 						springState.targetX = animation.target;
 						springState.v = animation.velocity;
-						if (animation.springParams != null) {
+						if (animation.springParams != null && isFinite(animation.springParams.strength) && isFinite(animation.springParams.damping)) {
 							Spring.stepSpring(dt_s, springState, animation.springParams);
 						} else {
 							// instant transition: set to the target
