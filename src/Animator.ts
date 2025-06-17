@@ -17,10 +17,10 @@ export class Animator {
 		beforeStep: new EventSignal<{dt_s: number}>(),
 		afterStep: new EventSignal<{dt_s: number}>(),
 	}
-	protected _onAnimationComplete = new EventSignal<{object: any, field: string | number | symbol}>();
+	protected _onFieldAnimationComplete = new EventSignal<{object: any, field: string | number | symbol}>();
 	protected _onObjectAnimationsComplete = new EventSignal<{object: any}>();
 
-	animations = new Map<any, Map<string | number | symbol, {
+	fieldAnimations = new Map<any, Map<string | number | symbol, {
 		target: number,
 		type: AnimationType,
 		springParams: Spring.PhysicsParameters | null,
@@ -40,72 +40,75 @@ export class Animator {
 
 	springTo<Obj>(
 		object: Obj,
-		target: { [Name in keyof Obj]: Obj[Name] & number },
+		target: Partial<Obj>,
 		params: SpringParameters | null
-	): void;
-	springTo<Obj, Name extends keyof Obj>(
+	): void {
+		forObjectFieldsRecursive(object, target, (obj, field, targetValue) => {
+			this.springFieldTo(obj, field, targetValue, params);
+		});
+	}
+
+	setTo<Obj>(
 		object: Obj,
-		field: Name,
-		target: Obj[Name] & number,
-		params: SpringParameters | null = { duration_s: 0.5 }
-	) {
-		if (params != null) {
-			let spring = this.getAnimationOrCreate(object, field, AnimationType.Spring);
-			// update the target and parameters
-			spring.type = AnimationType.Spring;
-			spring.target = target;
-			spring.springParams = Spring.getPhysicsParameters(params);
-			spring.step = null;
-		} else {
-			this.setTo(object, field, target);
-		}
+		target: { [Name in keyof Obj]: Obj[Name] }
+	): void {
+		forObjectFieldsRecursive(object, target, (obj, field, targetValue) => {
+			this.setFieldTo(obj, field, targetValue);
+		});
 	}
 
-	customTweenTo<Obj, Name extends keyof Obj>(object: Obj, field: Name, target: Obj[Name] & number, duration_s: number, step: TweenStepFn) {
-		let animation = this.getAnimationOrCreate(object, field, AnimationType.Tween);
-		animation.type = AnimationType.Tween;
-		animation.target = target;
-		animation.tweenParams = {
-			x0: object[field] as number,
-			t0_ms: performance.now(),
-			duration_s: duration_s,
-		}
-		animation.step = step;
+	customTweenTo<Obj>(
+		object: Obj,
+		target: { [Name in keyof Obj]: Obj[Name] & number },
+		duration_s: number,
+		step: TweenStepFn
+	): void {
+		forObjectFieldsRecursive(object, target, (obj, field, targetValue) => {
+			this.customTweenFieldTo(obj, field, targetValue as number, duration_s, step);
+		});
 	}
 
-	linearTo<Obj, Name extends keyof Obj>(object: Obj, field: Name, target: Obj[Name] & number, duration_s: number) {
-		this.customTweenTo(object, field, target, duration_s, Tween.linearStep);
+	linearTo<Obj>(
+		object: Obj,
+		target: { [Name in keyof Obj]: Obj[Name] & number },
+		duration_s: number
+	): void {
+		this.customTweenTo(object, target, duration_s, Tween.linearStep);
 	}
 
-	easeInOutTo<Obj, Name extends keyof Obj>(object: Obj, field: Name, target: Obj[Name] & number, duration_s: number) {
-		this.customTweenTo(object, field, target, duration_s, Tween.easeInOutStep);
+	easeInOutTo<Obj>(
+		object: Obj,
+		target: { [Name in keyof Obj]: Obj[Name] & number },
+		duration_s: number
+	): void {
+		this.customTweenTo(object, target, duration_s, Tween.easeInOutStep);
 	}
 
-	easeInTo<Obj, Name extends keyof Obj>(object: Obj, field: Name, target: Obj[Name] & number, duration_s: number) {
-		this.customTweenTo(object, field, target, duration_s, Tween.easeInStep);
+	easeInTo<Obj>(
+		object: Obj,
+		target: { [Name in keyof Obj]: Obj[Name] & number },
+		duration_s: number
+	): void {
+		this.customTweenTo(object, target, duration_s, Tween.easeInStep);
 	}
 
-	easeOutTo<Obj, Name extends keyof Obj>(object: Obj, field: Name, target: Obj[Name] & number, duration_s: number) {
-		this.customTweenTo(object, field, target, duration_s, Tween.easeOutStep);
+	easeOutTo<Obj>(
+		object: Obj,
+		target: { [Name in keyof Obj]: Obj[Name] & number },
+		duration_s: number
+	): void {
+		this.customTweenTo(object, target, duration_s, Tween.easeOutStep);
 	}
 
-	/**
-	 * Remove animation from the object and set the field to the target value
-	 */
-	setTo<Obj, Name extends keyof Obj, T extends Obj[Name]>(object: Obj, field: Name, target: T) {
-		this.remove(object, field);
-		object[field] = target;
-	}
-
-	onComplete<Obj, Name extends keyof Obj>(object: Obj, field: Name, callback: (object: Obj, field: Name) => void) {
-		return this._onAnimationComplete.addListener(e => {
+	onCompleteField<Obj, Name extends keyof Obj>(object: Obj, field: Name, callback: (object: Obj, field: Name) => void) {
+		return this._onFieldAnimationComplete.addListener(e => {
 			if (e.object === object && e.field === field) {
 				callback(object, field);
 			}
 		});
 	}
 
-	onAllComplete<Obj>(object: Obj, callback: (object: Obj) => void, once?: 'once') {
+	onComplete<Obj>(object: Obj, callback: (object: Obj) => void, once?: 'once') {
 		let listener = this._onObjectAnimationsComplete.addListener(e => {
 			if (e.object === object) {
 				callback(object);
@@ -125,7 +128,7 @@ export class Animator {
 		let springState = this._springState
 
 		// step all animations
-		this.animations.forEach((objectAnims, object) => {
+		this.fieldAnimations.forEach((objectAnims, object) => {
 			objectAnims.forEach((animation, field) => {
 				switch (animation.type) {
 					case AnimationType.Spring: {
@@ -148,7 +151,7 @@ export class Animator {
 						if (Math.abs(springState.x - springState.targetX) < 0.0001 && Math.abs(springState.v) < 0.0001) {
 							object[field] = animation.target;
 							objectAnims.delete(field);
-							this._onAnimationComplete.dispatch({object, field});
+							this._onFieldAnimationComplete.dispatch({object, field});
 						}
 					} break;
 					case AnimationType.Tween: {
@@ -163,7 +166,7 @@ export class Animator {
 						if (deltaTime_s >= animation.tweenParams!.duration_s) {
 							object[field] = animation.target;
 							objectAnims.delete(field);
-							this._onAnimationComplete.dispatch({object, field});
+							this._onFieldAnimationComplete.dispatch({object, field});
 						}
 						break;
 					}
@@ -172,7 +175,7 @@ export class Animator {
 
 			// remove the object if it has no more springs
 			if (objectAnims.size == 0) {
-				this.animations.delete(object);
+				this.fieldAnimations.delete(object);
 				this._onObjectAnimationsComplete.dispatch({object});
 			}
 		});
@@ -253,13 +256,13 @@ export class Animator {
 	 * Does not change the value of the field
 	 */
 	remove<T>(object: T, field: keyof T) {
-		let objectSprings = this.animations.get(object);
+		let objectSprings = this.fieldAnimations.get(object);
 		if (objectSprings != null) {
 			objectSprings.delete(field);
 		}
 		// if there are no more springs for this object, remove it from the map
 		if (objectSprings != null && objectSprings.size == 0) {
-			this.animations.delete(object);
+			this.fieldAnimations.delete(object);
 		}
 	}
 
@@ -267,14 +270,14 @@ export class Animator {
 	 * Remove all animations for this object
 	 */
 	removeObject(object: any) {
-		this.animations.delete(object);
+		this.fieldAnimations.delete(object);
 	}
 
 	/**
 	 * Remove all animations
 	 */
 	removeAll() {
-		this.animations.clear();
+		this.fieldAnimations.clear();
 	}
 
 	getVelocity<Obj, Name extends keyof Obj>(object: Obj, field: Name) {
@@ -282,15 +285,62 @@ export class Animator {
 		return spring?.velocity ?? 0;
 	}
 
+	protected springFieldTo<Obj, Name extends keyof Obj>(
+		object: Obj,
+		field: Name,
+		targetValue: Obj[Name] & number,
+		params: SpringParameters | null = { duration_s: 0.5 }
+	) {
+		if (params != null) {
+			let spring = this.getAnimationOrCreate(object, field, AnimationType.Spring);
+			// update the target and parameters
+			spring.type = AnimationType.Spring;
+			spring.target = targetValue;
+			spring.springParams = Spring.getPhysicsParameters(params);
+			spring.step = null;
+		} else {
+			this.setFieldTo(object, field, targetValue);
+		}
+	}
+
+	/**
+	* Remove animation from the object and set the field to the target value
+	*/
+	protected setFieldTo<Obj, Name extends keyof Obj, T extends Obj[Name]>(
+		object: Obj,
+		field: Name,
+		targetValue: T
+	) {
+		this.remove(object, field);
+		object[field] = targetValue;
+	}
+
+	protected customTweenFieldTo<Obj, Name extends keyof Obj>(
+		object: Obj,
+		field: Name,
+		targetValue: Obj[Name] & number,
+		duration_s: number, step: TweenStepFn
+	) {
+		let animation = this.getAnimationOrCreate(object, field, AnimationType.Tween);
+		animation.type = AnimationType.Tween;
+		animation.target = targetValue;
+		animation.tweenParams = {
+			x0: object[field] as number,
+			t0_ms: performance.now(),
+			duration_s: duration_s,
+		}
+		animation.step = step;
+	}
+
 	/**
 	 * Creates a new map if one doesn't already exist for the given object
 	 */
 	private getObjectAnimations(object: any) {
-		let objectAnimations = this.animations.get(object);
+		let objectAnimations = this.fieldAnimations.get(object);
 		if (objectAnimations == null) {
 			// create
 			objectAnimations = new Map();
-			this.animations.set(object, objectAnimations);
+			this.fieldAnimations.set(object, objectAnimations);
 		}
 		return objectAnimations;
 	}
@@ -386,4 +436,21 @@ export namespace Tween {
 		object[field] = x_new;
 	}
 
+}
+
+function forObjectFieldsRecursive<T extends any>(
+	sourceObj: T,
+	targetObj: Partial<T>,
+	callback: (obj: any, field: string, targetValue: any) => void
+) {
+	for (let field in targetObj) {
+		if (Object.hasOwn(targetObj, field)) {
+			let targetValue = targetObj[field];
+			if (typeof targetValue === 'object') {
+				forObjectFieldsRecursive(sourceObj[field], targetValue, callback);
+			} else {
+				callback(sourceObj, field, targetValue);
+			}
+		}
+	}
 }
