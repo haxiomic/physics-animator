@@ -50,6 +50,8 @@ export namespace Spring {
         // -2ln(0.001) = b t
         const durationTarget = 0.001; // 0.1% of target
         let damping = -2 * Math.log(durationTarget) / duration_s;
+        
+        // see https://www.desmos.com/calculator/h43ylohte7
         const strength = 0.25 * (((2 * bounce * Math.PI) / duration_s) ** 2 + damping ** 2);
         return {
             damping,

@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spring Animation Grid Demo</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 30px;
+            font-family: system-ui, -apple-system, sans-serif;
+            background: #f5f5f5;
+            color: #333;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .header h1 {
+            margin: 0 0 10px 0;
+            font-size: 2em;
+            font-weight: 500;
+        }
+
+        .header p {
+            margin: 0;
+            color: #666;
+        }
+
+        .demo-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .grid-container {
+            position: relative;
+            background: white;
+            border-radius: 8px;
+            padding: 5px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .axis-label {
+            position: absolute;
+            font-size: 12px;
+            color: #666;
+            font-weight: 500;
+        }
+
+        .x-axis-label {
+            bottom: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .y-axis-label {
+            left: -50px;
+            top: 50%;
+            transform: translateY(-50%) rotate(-90deg);
+            transform-origin: center;
+        }
+
+        .axis-values {
+            position: absolute;
+            font-size: 10px;
+            color: #999;
+        }
+
+        .x-values {
+            bottom: 10px;
+            left: 0;
+            right: 0;
+            display: flex;
+            justify-content: space-between;
+            padding: 0 80px;
+        }
+
+        .y-values {
+            left: 10px;
+            top: 80px;
+            bottom: 70px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: flex-end;
+            padding-right: 25px;
+        }
+
+        .cell {
+            cursor: pointer;
+        }
+
+        .inner-cell {
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 8px;
+            font-weight: 500;
+            color: rgba(0, 0, 0, 0.7);
+            text-align: center;
+            line-height: 1.1;
+        }
+    </style>
+
+    <script type="importmap">
+        {
+          "imports": {
+            "physics-animator": "../dist/esm/index.js",
+            "physics-animator/react": "../dist/esm/react/index.js",
+            "physics-animator/three": "../dist/esm/three/index.js"
+          },
+          "scopes": {
+            "../dist/esm/": {
+              "@haxiomic/event-signal": "../node_modules/@haxiomic/event-signal/dist/esm/EventSignal.js"
+            }
+          }
+        }
+    </script>
+</head>
+<body>
+    <div class="header">
+        <h1>Spring Animation Grid</h1>
+        <p>Hover over cells to see spring physics with different duration and bounce parameters</p>
+    </div>
+
+    <div class="demo-container">
+        <div class="grid-container">
+            <div class="axis-label x-axis-label">Duration →</div>
+            <div class="axis-label y-axis-label">← Bounce</div>            
+            <div id="animation-grid"></div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { Animator } from "../dist/esm/index.js";
+
+        const animator = new Animator();
+        animator.startAnimationFrameLoop();
+
+        const container = document.getElementById('animation-grid');
+        container.style.position = 'relative';
+
+        const padding = 3;
+        const columns = 8;
+        const rows = 8;
+        const cellSize = 100;
+
+        // Set container size
+        container.style.width = `${columns * cellSize}px`;
+        container.style.height = `${rows * cellSize}px`;
+
+        for (let i = 0; i < columns; i++) {
+            for (let j = 0; j < rows; j++) {
+                let u = (i + 1) / (columns);
+                let v = j / (rows - 1);
+    
+                const duration_s = 2 * u * u;
+                const bounce = v * v * 15 * u;
+                const springParams = {
+                    duration_s,
+                    bounce,
+                };
+
+                const element = document.createElement("div");
+                element.className = "cell";
+                element.style.width = "50px";
+                element.style.height = "50px";
+                element.style.position = "absolute";
+                element.style.left = "0";
+                element.style.top = "0";
+                element.style.transform = `translate(${i * cellSize}px, ${j * cellSize}px)`;
+                container.appendChild(element);
+
+                const innerElement = document.createElement("div");
+                innerElement.className = "inner-cell";
+                innerElement.style.width = (cellSize - padding * 2) + "px";
+                innerElement.style.height = (cellSize - padding * 2) + "px";
+                innerElement.style.left = padding + "px";
+                innerElement.style.top = padding + "px";
+                innerElement.style.position = "absolute";
+                innerElement.style.borderRadius = "4px";
+                innerElement.innerHTML = `${duration_s.toFixed(2)}s<br>${bounce.toFixed(2)}b`;
+
+                // Better color scheme
+                const hue = (i / columns) * 240 + (j / rows) * 120;
+                const saturation = 0.6 + (i + j) / (columns + rows) * 0.4;
+                const lightness = 0.7 - ((i + j) / (columns + rows)) * 0.2;
+                
+                const r = Math.floor(255 * (lightness + saturation * Math.cos(hue * Math.PI / 180) * 0.3));
+                const g = Math.floor(255 * (lightness + saturation * Math.cos((hue + 120) * Math.PI / 180) * 0.3));
+                const b = Math.floor(255 * (lightness + saturation * Math.cos((hue + 240) * Math.PI / 180) * 0.3));
+                
+                innerElement.style.backgroundColor = `rgb(${Math.max(0, Math.min(255, r))}, ${Math.max(0, Math.min(255, g))}, ${Math.max(0, Math.min(255, b))})`;
+                
+                const normalizedR = r / 255;
+                const normalizedG = g / 255;
+                const normalizedB = b / 255;
+
+                element.appendChild(innerElement);
+
+                // State object
+                const state = {
+                    scale: 1,
+                    rotation_rad: 0,
+                    opacity: 0.5,
+                    r: normalizedR,
+                    g: normalizedG,
+                    b: normalizedB,
+                    borderRadius: 4,
+                    zIndex: 0,
+                    shadowOpacity: 0.0,
+                };
+                const defaultState = { ...state };
+
+                function update() {
+                    innerElement.style.transform = `scale(${state.scale}) rotate(${state.rotation_rad}rad)`;
+                    innerElement.style.backgroundColor = `rgb(${Math.floor(state.r * 255)}, ${Math.floor(state.g * 255)}, ${Math.floor(state.b * 255)})`;
+                    innerElement.style.opacity = state.opacity;
+                    // innerElement.style.borderRadius = `${state.borderRadius}px`;
+                    // innerElement.style.boxShadow = `0 0px 20px rgba(0, 0, 0, ${state.shadowOpacity})`;
+                    element.style.zIndex = Math.max(Math.round(state.zIndex), 0);
+                }
+
+                update();
+                
+                animator.onAfterStep.addListener(e => update());
+
+                element.addEventListener('mouseover', () => {
+                    animator.springTo(state, 'scale', 1.5, springParams);
+                    animator.springTo(state, 'opacity', 1.0, springParams);
+                    animator.springTo(state, 'borderRadius', 10, springParams);
+                    animator.springTo(state, 'zIndex', 10, springParams);
+                    animator.springTo(state, 'shadowOpacity', 0.2, springParams);
+                });
+
+                element.addEventListener('mouseout', () => {
+                    animator.springTo(state, 'scale', defaultState.scale, springParams);
+                    animator.springTo(state, 'opacity', defaultState.opacity, springParams);
+                    animator.springTo(state, 'borderRadius', defaultState.borderRadius, springParams);
+                    animator.springTo(state, 'zIndex', defaultState.zIndex, springParams);
+                    animator.springTo(state, 'shadowOpacity', defaultState.shadowOpacity, springParams);
+                });
+            }
+        }
+    </script>
+</body>
+</html>
