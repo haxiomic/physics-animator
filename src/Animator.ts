@@ -13,8 +13,10 @@ enum AnimationType {
  */
 export class Animator {
 
-	onBeforeStep = new EventSignal<{dt_s: number}>();
-	onAfterStep = new EventSignal<{dt_s: number}>();
+	readonly events = {
+		beforeStep: new EventSignal<{dt_s: number}>(),
+		afterStep: new EventSignal<{dt_s: number}>(),
+	}
 	protected _onAnimationComplete = new EventSignal<{object: any, field: string | number | symbol}>();
 	protected _onObjectAnimationsComplete = new EventSignal<{object: any}>();
 
@@ -29,14 +31,24 @@ export class Animator {
 
 	constructor(onBeforeStep?: (dt_s: number) => void, onAfterStep?: (dt_s: number) => void) {
 		if (onBeforeStep) {
-			this.onBeforeStep.addListener(e => onBeforeStep(e.dt_s));
+			this.events.beforeStep.addListener(e => onBeforeStep(e.dt_s));
 		}
 		if (onAfterStep) {
-			this.onAfterStep.addListener(e => onAfterStep(e.dt_s));
+			this.events.afterStep.addListener(e => onAfterStep(e.dt_s));
 		}
 	}
 
-	springTo<Obj, Name extends keyof Obj>(object: Obj, field: Name, target: Obj[Name] & number, params: SpringParameters | null = { duration_s: 0.5 }) {
+	springTo<Obj>(
+		object: Obj,
+		target: { [Name in keyof Obj]: Obj[Name] & number },
+		params: SpringParameters | null
+	): void;
+	springTo<Obj, Name extends keyof Obj>(
+		object: Obj,
+		field: Name,
+		target: Obj[Name] & number,
+		params: SpringParameters | null = { duration_s: 0.5 }
+	) {
 		if (params != null) {
 			let spring = this.getAnimationOrCreate(object, field, AnimationType.Spring);
 			// update the target and parameters
@@ -107,8 +119,8 @@ export class Animator {
 
 	private _springState = { x: 0, targetX: 0, v: 0 };
 	step(dt_s: number) {
-		if (this.onBeforeStep.hasListeners()) {
-			this.onBeforeStep.dispatch({dt_s});
+		if (this.events.beforeStep.hasListeners()) {
+			this.events.beforeStep.dispatch({dt_s});
 		}
 		let springState = this._springState
 
@@ -165,7 +177,7 @@ export class Animator {
 			}
 		});
 
-		this.onAfterStep.dispatch({dt_s});
+		this.events.afterStep.dispatch({dt_s});
 	}
 
 	private t_last = -1;
