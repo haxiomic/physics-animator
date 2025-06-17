@@ -36,7 +36,7 @@ export namespace Spring {
      * `strength = damping * damping / 4`
      */
     export function Exponential(options: ExponentialParameters): PhysicsParameters {
-        // solved numerically
+        // found numerically
         const halfLifeConstant = 3.356694; // from solve (1+u)*exp(-u)=0.5 for u, and constant = 2u
         const pointOnePercentConstant = 18.46682; // from solve (1+u)*exp(-u)=0.001 for u, and constant = 2u
         const damping = pointOnePercentConstant / options.duration_s;
@@ -50,11 +50,11 @@ export namespace Spring {
         // -2ln(0.001) = b t
         const durationTarget = 0.001; // 0.1% of target
         let damping = -2 * Math.log(durationTarget) / duration_s;
-        // 4k - b^2 > 0
-        let bSq = damping * damping;
-        const criticalStrength = bSq / 4;
-        let strength = criticalStrength + (bounce * bounce + 1); 
-        return { damping, strength };
+        const strength = 0.25 * (((2 * bounce * Math.PI) / duration_s) ** 2 + damping ** 2);
+        return {
+            damping,
+            strength,
+        }
     }
 
     export function getPhysicsParameters(
