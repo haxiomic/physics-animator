@@ -14,7 +14,7 @@ type UnderdampedParameters = {
     duration_s: number,
     /**
      * How soft / bouncy the spring, at 0 there is no bounce and decay is exponential, from 0 to infinity the spring will overshoot its target while decaying
-     * It can be loosely through of roughly the number of oscillations it will take to reach the target
+     * It can be thought of roughly the number of oscillations it will take to reach the target
      */
     bounce: number,
 };
