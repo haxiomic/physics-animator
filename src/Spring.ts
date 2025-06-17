@@ -76,7 +76,9 @@ export namespace Spring {
      * Analytic spring integration
      * @param dt_s 
      * @param state 
-     * @param parameters 
+     * @param parameters
+     * 
+     * If parameters are NaN or infinite, the spring will skip to the target
      */
     export function stepSpring(
         dt_s: number,
@@ -103,6 +105,13 @@ export namespace Spring {
         // nothing will change; exit early
         if (dx0 === 0 && v0 === 0) return;
         if (dt_s === 0) return;
+
+        if (!isFinite(k) || !isFinite(b) || !isFinite(v0) || !isFinite(dx0)) {
+            // skip to target
+            state.x = state.targetX;
+            state.v = 0;
+            return 0; // no energy
+        }
 
         let critical = k * 4 - b * b;
 
