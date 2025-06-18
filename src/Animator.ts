@@ -513,7 +513,7 @@ function forObjectFieldsRecursive<T extends any>(
 	callback: (object: any, field: string, targetValue: any) => void
 ) {
 	for (let field in targetObj) {
-		if (Object.hasOwn(targetObj, field)) {
+		if (Object.prototype.hasOwnProperty.call(targetObj, field)) {
 			let targetValue = targetObj[field];
 			if (typeof targetValue === 'object') {
 				forObjectFieldsRecursive(sourceObj[field], targetValue, callback);
