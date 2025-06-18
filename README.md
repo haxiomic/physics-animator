@@ -20,7 +20,7 @@ Or via state
 ```tsx
 const opacity = useSpringState({ initial: 0, target: 1, duration_s: 0.8 })
 
-return <div style={opacity} />
+return <div style={{ opacity }} />
 ```
 
 It works with arrays and objects
@@ -36,13 +36,22 @@ Outside of react we use the animator object
 const animator = new Animator();
 animator.startAnimationFrameLoop();
 
-animator.springTo(character, 'opacity', 1, { duration_s: 0.8 })
+animator.springTo(character, { opacity: 1 }, { duration_s: 0.8, bounce: 1 })
 ```
 
-We can animate three objects like vectors:
+We can animate nested fields
 
 ```ts
-animator.springTo(character, 'rotation', new Quaternion(), { duration_s: 2 })
+animator.springTo(character, { position: { x, y, z } }, { duration_s: 2 })
+```
+
+And get notified of changes, even if they're nested within the object
+
+```ts
+animator.springTo(character.color, { rgb: [1, 0, 0] }, { duration_s: 2 })
+
+// will fire if any property within character is changed by the animator
+animator.onChange(character, () => render());
 ```
 
 Velocity state is stored within the animator object
