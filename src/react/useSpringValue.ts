@@ -1,8 +1,8 @@
-import { useRef } from "react";
-import { Animator } from "../Animator.js";
-import { Spring, SpringParameters } from "../Spring.js";
-import { useAnimator } from "./useAnimator.js";
 import { useInitializer } from "use-initializer";
+import { Animator } from "../Animator.js";
+import { SpringParameters } from "../Spring.js";
+import { useAnimator } from "./useAnimator.js";
+import { useEffect } from "react";
 
 /**
  * A value that animates to a target value using a spring animation.
@@ -21,61 +21,24 @@ export function useSpringValue<T extends number | number[] | { [field: PropertyK
     const animator = useAnimator(options.animator);
 
     const springValue = useInitializer(() => {
-        let value = structuredClone(options.initial);
         return {
-            get value() {
-                return value;
-            },
-            set value(newValue: T) {
-                value = newValue;
-                onChange(value);
-            },
+            value: structuredClone(options.initial),
         };
     });
 
-    const afterStepListener = useRef<{ remove:() => void } | null>(null);
-    
-    switch (typeof options.initial) {
-        case 'number': {
-            animator.springTo(
-                springValue,
-                'value',
-                options.target as any,
-                options
-            );
-        } break;
-        default: {
-            if (Array.isArray(options.initial)) {
-                for (let i = 0; i < options.initial.length; i++) {
-                    animator.springTo(
-                        springValue.value as number[],
-                        i,
-                        (options.target as number[])[i],
-                        options
-                    );
-                }
-            } else {
-                // assume object, iterate over keys
-                for (const key in options.initial) {
-                    animator.springTo(
-                        springValue.value,
-                        key,
-                        (options.target as any)[key],
-                        options
-                    );
-                }
-            }
+    useEffect(() => {
+        let remove = animator.onChange(springValue, () => {
+            onChange(springValue.value);
+        }).remove;
+        return () => {
+            remove();
+        }
+    }, [springValue, onChange]);
 
-            if (!afterStepListener.current) {
-                afterStepListener.current = animator.onAfterStep.addListener(() => {
-                    onChange(springValue.value);
-                });
-                animator.onAllComplete(springValue.value, () => {
-                    afterStepListener.current?.remove();
-                    afterStepListener.current = null;
-                }, 'once');
-            }
+    animator.springTo(
+        springValue,
+        { value: options.target  },
+        options
+    );
 
-        } break;
-    }
 }

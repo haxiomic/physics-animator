@@ -215,6 +215,14 @@ export class Animator {
 		};
 	}
 
+	onBeforeStep(callback: (dt_s: number) => void) {
+		return this.events.beforeStep.addListener(e => callback(e.dt_s));
+	}
+
+	onAfterStep(callback: (dt_s: number) => void) {
+		return this.events.afterStep.addListener(e => callback(e.dt_s));
+	}
+
 	private _springState = { x: 0, targetX: 0, v: 0 };
 	step(dt_s: number) {
 		this.events.beforeStep.dispatch({dt_s});
