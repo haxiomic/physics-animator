@@ -1,3 +1,52 @@
+import { IFieldAnimator, StepResult } from "../IFieldAnimator.js";
+
+const defaultSpringParameters = {
+    duration_s: 0.5,
+}
+
+export const SpringAnimator: IFieldAnimator<SpringParameters, SpringState, number> = {
+
+    createState(obj, field, target, params) {
+        return {
+            x: obj[field],
+            targetX: target,
+            v: 0,
+            physicsParameters: Spring.getPhysicsParameters(params ?? defaultSpringParameters),
+        }
+    },
+
+    updateState(state, object, field, target, params) {
+        state.x = object[field];
+        state.targetX = target as number;
+        state.physicsParameters = Spring.getPhysicsParameters(params ?? defaultSpringParameters);
+    },
+
+    step(state, object, field, params, dt_s) {
+        let physicsParameters = state.physicsParameters;
+
+        // step the spring
+        if (physicsParameters != null && isFinite(physicsParameters.strength) && isFinite(physicsParameters.damping)) {
+            Spring.stepSpring(dt_s, state, physicsParameters);
+        } else {
+            // instant transition: set to the target
+            state.x = state.targetX;
+            state.v = 0;
+        }
+    
+        // update the object
+        (object[field] as number) = state.x;
+
+        // complete the animation if it's close enough to the target and velocity is close to 0
+        if (Math.abs(state.x - state.targetX) < 0.0001 && Math.abs(state.v) < 0.0001) {
+            (object[field] as number) = state.targetX;
+            return StepResult.Complete;
+        } else {
+            return StepResult.Continue;
+        }
+    }
+
+}
+
 /**
  * Spring
  * 
@@ -18,6 +67,13 @@ type UnderdampedParameters = {
      */
     bounce: number,
 };
+
+type SpringState = {
+    x: number,
+    targetX: number,
+    v: number,
+    physicsParameters: Spring.PhysicsParameters,
+}
 
 export type SpringParameters = ExponentialParameters | UnderdampedParameters | Spring.PhysicsParameters;
 
