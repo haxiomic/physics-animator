@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useSpringValue } from "./useSpringValue.js";
 import { Animator } from "../Animator.js";
-import { SpringParameters } from "../Spring.js";
+import { SpringParameters } from "src/animators/SpringAnimator.js";
 
 /**
  * A value that animates to a target value using a spring animation.
