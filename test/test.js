@@ -139,7 +139,8 @@ for (let i = 0; i < columns; i++) {
     };
 
     update();
-    animator.events.afterStep.addListener(() => update());
+
+    animator.onChange(state, update);
 
     cell.addEventListener("mouseenter", (e) => {
       animator.springTo(state, (selectedCount ? selectedState : hoveredState), springParams);
