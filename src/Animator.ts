@@ -3,14 +3,6 @@ import { IFieldAnimator, StepResult } from "./IFieldAnimator.js";
 import { SpringAnimator, SpringParameters } from "./animators/SpringAnimator.js";
 import { easeInOutStep, easeInStep, easeOutStep, EasingStepFn, linearStep, TweenAnimator } from "./animators/TweenAnimator.js";
 
-type FieldKey = string | number | symbol;
-
-type FieldAnimation<Params, State> = {
-	animator: IFieldAnimator<Params, State, any>,
-	state: State,
-	params: Params | null,
-}
-
 /**
  * Physically based animation of numeric properties of objects
  * 
@@ -56,7 +48,7 @@ export class Animator {
 	animateTo<Obj, Parameters, State, FieldType>(
 		object: Obj,
 		target: Partial<Obj>,
-		animator: IFieldAnimator<Parameters, State, FieldType>,
+		animator: IFieldAnimator<Parameters, State, FieldType> = SpringAnimator as IFieldAnimator<Parameters, State, FieldType>,
 		params: Parameters | null = null
 	): void {
 		forObjectFieldsRecursive(object, target, (subObj, field, targetValue) => {
@@ -506,6 +498,14 @@ export class Animator {
 	}
 
 }
+
+type FieldAnimation<Params, State> = {
+	animator: IFieldAnimator<Params, State, any>,
+	state: State,
+	params: Params | null,
+}
+
+type FieldKey = string | number | symbol;
 
 function forObjectFieldsRecursive<T extends any>(
 	sourceObj: T,
