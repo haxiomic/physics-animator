@@ -4,6 +4,15 @@
   "author": "haxiomic (George Corney)",
   "license": "MIT",
   "description": "A TypeScript animation system grounded in physics with three.js and react support.",
+  "keywords": [
+    "physics",
+    "animation",
+    "three.js",
+    "react",
+    "typescript",
+    "spring",
+    "tween"
+  ],
   "type": "module",
   "main": "dist/cjs/index.js",
   "module": "dist/esm/index.js",
