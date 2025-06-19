@@ -2,6 +2,12 @@
 
 A TypeScript animation system grounded in physics with three.js and react support.
 
+<div align="center">
+  <a href="https://haxiomic.github.io/physics-animator/">
+    <img width="759" alt="Screenshot 2025-06-19 at 10 56 58" src="https://github.com/user-attachments/assets/3c8c4684-75fd-491f-a4ab-ece9aca4c327" />
+  </a>
+</div>
+
 Why use this over other animation systems?
 
 This library focuses on simplicity and correctness – I've generally run into design troubles with popular animation libraries like framer motion: for example complex framer animations become convoluted and don't correctly handled interruptions without discontinuities in velocity
