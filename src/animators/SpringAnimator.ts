@@ -1,4 +1,5 @@
-import { IFieldAnimator, StepResult } from "../IFieldAnimator.js";
+import { StepResult } from "../Animator.js";
+import { IFieldAnimator } from "./IFieldAnimator.js";
 
 const defaultSpringParameters = {
     duration_s: 0.5,

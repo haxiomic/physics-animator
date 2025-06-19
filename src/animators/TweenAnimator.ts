@@ -1,4 +1,5 @@
-import { IFieldAnimator, StepResult } from "../IFieldAnimator.js";
+import { StepResult } from "../Animator.js";
+import { IFieldAnimator } from "./IFieldAnimator.js";
 
 export type TweenParameters = {
 	duration_s: number, // duration of the tween in seconds

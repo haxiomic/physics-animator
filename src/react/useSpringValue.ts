@@ -2,7 +2,7 @@ import { useInitializer } from "use-initializer";
 import { Animator } from "../Animator.js";
 import { useAnimator } from "./useAnimator.js";
 import { useEffect } from "react";
-import { SpringParameters } from "src/animators/SpringAnimator.js";
+import { SpringParameters } from "../animators/SpringAnimator.js";
 
 /**
  * A value that animates to a target value using a spring animation.

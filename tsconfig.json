@@ -13,7 +13,6 @@
         "jsx": "react",
         "outDir": "./dist/esm",
         "rootDir": "./src",
-        "baseUrl": ".",
         "allowJs": true,
         "skipLibCheck": true,
     },

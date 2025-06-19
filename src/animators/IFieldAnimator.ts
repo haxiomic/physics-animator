@@ -1,7 +1,4 @@
-export enum StepResult {
-	Continue = 0, // continue stepping
-	Complete, // complete the animation
-}
+import { StepResult } from "../Animator.js";
 
 export interface IFieldAnimator<Params, State, FieldType> {
 

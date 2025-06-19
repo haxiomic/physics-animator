@@ -1,6 +1,6 @@
 {
   "name": "physics-animator",
-  "version": "0.10.0",
+  "version": "0.11.0",
   "author": "haxiomic (George Corney)",
   "license": "MIT",
   "description": "A TypeScript animation system grounded in physics with three.js and react support.",

@@ -1,5 +1,5 @@
 import { EventSignal } from "@haxiomic/event-signal";
-import { IFieldAnimator, StepResult } from "./IFieldAnimator.js";
+import { IFieldAnimator } from "./animators/IFieldAnimator.js";
 import { SpringAnimator, SpringParameters } from "./animators/SpringAnimator.js";
 import { easeInOutStep, easeInStep, easeOutStep, EasingStepFn, linearStep, TweenAnimator } from "./animators/TweenAnimator.js";
 
@@ -497,6 +497,11 @@ export class Animator {
 		return animation;
 	}
 
+}
+
+export enum StepResult {
+	Continue = 0, // continue stepping
+	Complete, // complete the animation
 }
 
 type FieldAnimation<Params, State> = {
