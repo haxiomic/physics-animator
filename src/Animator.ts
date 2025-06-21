@@ -3,6 +3,8 @@ import { IFieldAnimator } from "./animators/IFieldAnimator.js";
 import { SpringAnimator, SpringParameters } from "./animators/SpringAnimator.js";
 import { easeInOutStep, easeInStep, easeOutStep, EasingStepFn, linearStep, TweenAnimator } from "./animators/TweenAnimator.js";
 
+type Public<T> = Pick<T, keyof T>; // drops private/protected keys
+
 /**
  * Physically based animation of numeric properties of objects
  * 
@@ -33,9 +35,9 @@ export class Animator {
 		}
 	}
 
-	setTo<Obj extends Record<string, any>>(
+	setTo<Obj>(
 		object: Obj,
-		target: Partial<Obj>
+		target: Partial<Public<Obj>>
 	): void {
 		this.beforeChange.dispatch();
 		forObjectFieldsRecursive(object, target, (obj, field, targetValue) => {
@@ -45,9 +47,9 @@ export class Animator {
 		this.afterChange.dispatch();
 	}
 
-	animateTo<Obj extends Record<string, any>, Parameters, State, FieldType>(
+	animateTo<Obj, Parameters, State, FieldType>(
 		object: Obj,
-		target: Partial<Obj>,
+		target: Partial<Public<Obj>>,
 		animator: IFieldAnimator<Parameters, State, FieldType> = SpringAnimator as IFieldAnimator<Parameters, State, FieldType>,
 		params: Parameters | null = null
 	): void {
@@ -56,9 +58,9 @@ export class Animator {
 		});
 	}
 
-	springTo<Obj extends Record<string, any>>(
+	springTo<Obj>(
 		object: Obj,
-		target: Partial<Obj>,
+		target: Partial<Public<Obj>>,
 		params: SpringParameters | null
 	): void {
 		this.animateTo(
@@ -69,9 +71,9 @@ export class Animator {
 		);
 	}
 
-	customTweenTo<Obj extends Record<string, any>>(
+	customTweenTo<Obj>(
 		object: Obj,
-		target: Partial<Obj>,
+		target: Partial<Public<Obj>>,
 		duration_s: number,
 		easingFn: EasingStepFn
 	): void {
@@ -86,33 +88,33 @@ export class Animator {
 		);
 	}
 
-	linearTo<Obj extends Record<string, any>>(
+	linearTo<Obj>(
 		object: Obj,
-		target: Partial<Obj>,
+		target: Partial<Public<Obj>>,
 		duration_s: number
 	): void {
 		this.customTweenTo(object, target, duration_s, linearStep);
 	}
 
-	easeInOutTo<Obj extends Record<string, any>>(
+	easeInOutTo<Obj>(
 		object: Obj,
-		target: Partial<Obj>,
+		target: Partial<Public<Obj>>,
 		duration_s: number
 	): void {
 		this.customTweenTo(object, target, duration_s, easeInOutStep);
 	}
 
-	easeInTo<Obj extends Record<string, any>>(
+	easeInTo<Obj>(
 		object: Obj,
-		target: Partial<Obj>,
+		target: Partial<Public<Obj>>,
 		duration_s: number
 	): void {
 		this.customTweenTo(object, target, duration_s, easeInStep);
 	}
 
-	easeOutTo<Obj extends Record<string, any>>(
+	easeOutTo<Obj>(
 		object: Obj,
-		target: Partial<Obj>,
+		target: Partial<Public<Obj>>,
 		duration_s: number
 	): void {
 		this.customTweenTo(object, target, duration_s, easeOutStep);
