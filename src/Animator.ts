@@ -33,7 +33,7 @@ export class Animator {
 		}
 	}
 
-	setTo<Obj>(
+	setTo<Obj extends Record<string, any>>(
 		object: Obj,
 		target: Partial<Obj>
 	): void {
@@ -45,7 +45,7 @@ export class Animator {
 		this.afterChange.dispatch();
 	}
 
-	animateTo<Obj, Parameters, State, FieldType>(
+	animateTo<Obj extends Record<string, any>, Parameters, State, FieldType>(
 		object: Obj,
 		target: Partial<Obj>,
 		animator: IFieldAnimator<Parameters, State, FieldType> = SpringAnimator as IFieldAnimator<Parameters, State, FieldType>,
@@ -56,7 +56,7 @@ export class Animator {
 		});
 	}
 
-	springTo<Obj>(
+	springTo<Obj extends Record<string, any>>(
 		object: Obj,
 		target: Partial<Obj>,
 		params: SpringParameters | null
@@ -69,7 +69,7 @@ export class Animator {
 		);
 	}
 
-	customTweenTo<Obj>(
+	customTweenTo<Obj extends Record<string, any>>(
 		object: Obj,
 		target: Partial<Obj>,
 		duration_s: number,
@@ -86,7 +86,7 @@ export class Animator {
 		);
 	}
 
-	linearTo<Obj>(
+	linearTo<Obj extends Record<string, any>>(
 		object: Obj,
 		target: Partial<Obj>,
 		duration_s: number
@@ -94,7 +94,7 @@ export class Animator {
 		this.customTweenTo(object, target, duration_s, linearStep);
 	}
 
-	easeInOutTo<Obj>(
+	easeInOutTo<Obj extends Record<string, any>>(
 		object: Obj,
 		target: Partial<Obj>,
 		duration_s: number
@@ -102,7 +102,7 @@ export class Animator {
 		this.customTweenTo(object, target, duration_s, easeInOutStep);
 	}
 
-	easeInTo<Obj>(
+	easeInTo<Obj extends Record<string, any>>(
 		object: Obj,
 		target: Partial<Obj>,
 		duration_s: number
@@ -110,7 +110,7 @@ export class Animator {
 		this.customTweenTo(object, target, duration_s, easeInStep);
 	}
 
-	easeOutTo<Obj>(
+	easeOutTo<Obj extends Record<string, any>>(
 		object: Obj,
 		target: Partial<Obj>,
 		duration_s: number
