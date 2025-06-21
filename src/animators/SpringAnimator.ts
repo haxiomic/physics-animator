@@ -57,6 +57,8 @@ export const SpringAnimator: IFieldAnimator<SpringParameters, SpringState, numbe
 type ExponentialParameters = {
     /** Defined as the point in time we'll reach within 0.01% of target from 0 velocity start */
     duration_s: number,
+} | { 
+    halfLife_s: number,
 }
 
 type UnderdampedParameters = {
@@ -86,17 +88,17 @@ export namespace Spring {
     }
 
     /**
-     * Starting with 0 velocity, this parameter describes how long it would take to reach half-way to the target
+     * Exponential decay without any bounce
      * 
-     * `damping = 3.356694 / approxHalfLife_s`
-     * 
-     * `strength = damping * damping / 4`
+     * Control with either duration_s or halfLife_s
      */
     export function Exponential(options: ExponentialParameters): PhysicsParameters {
         // found numerically
         const halfLifeConstant = 3.356694; // from solve (1+u)*exp(-u)=0.5 for u, and constant = 2u
         const pointOnePercentConstant = 18.46682; // from solve (1+u)*exp(-u)=0.001 for u, and constant = 2u
-        const damping = pointOnePercentConstant / options.duration_s;
+        const damping = ('halfLife_s' in options)
+            ? halfLifeConstant / options.halfLife_s
+            : pointOnePercentConstant / options.duration_s;
 
         let strength = damping * damping / 4;
         return { damping, strength };
