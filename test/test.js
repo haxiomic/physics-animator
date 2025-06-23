@@ -4,6 +4,33 @@ import { Animator } from "physics-animator";
 const animator = new Animator();
 animator.startAnimationFrameLoop();
 
+let demoHtml = /*html*/`
+<style>
+  #animation-grid {
+    position: relative;
+  }
+
+  #animation-grid .cell {
+    will-change: z-index;
+    contain: layout style;
+    position: absolute;
+  }
+
+  #animation-grid .inner-cell {
+    contain: layout style paint;
+  }
+</style>
+<div class="demo-container">
+  <div class="grid-container">
+    <div class="axis-label x-axis-label">Bounce →</div>
+    <div class="axis-label y-axis-label">← Duration</div>
+    <div id="animation-grid"></div>
+  </div>
+</div>
+`;
+// add the demo HTML to the body
+document.body.insertAdjacentHTML("beforeend", demoHtml);
+
 const container = document.getElementById("animation-grid");
 if (!container) {
   throw new Error("Container element not found");
@@ -13,7 +40,6 @@ const rows = 8;
 const cellSize = 70;
 const padding = 3;
 
-container.style.position = "relative";
 container.style.width = `${columns * cellSize}px`;
 container.style.height = `${rows * cellSize}px`;
 
@@ -37,7 +63,7 @@ for (let i = 0; i < columns; i++) {
     cell.style.width = `${cellSize}px`;
     cell.style.height = `${cellSize}px`;
     cell.style.padding = `${padding}px`;
-    cell.style.transform = `translate(${i * cellSize}px, ${j * cellSize}px)`;
+    cell.style.transform = `translate3d(${i * cellSize}px, ${j * cellSize}px, 0)`;
     container.appendChild(cell);
 
     const inner = document.createElement("div");
