@@ -18,6 +18,7 @@ export function useSpringValue<T extends number | number[] | { [field: PropertyK
     } & SpringParameters,
     onChange: (value: T) => void
 ) {
+
     const animator = useAnimator(options.animator);
 
     const springValue = useInitializer(() => {

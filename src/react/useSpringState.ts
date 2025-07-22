@@ -3,6 +3,9 @@ import { useSpringValue } from "./useSpringValue.js";
 import { Animator } from "../Animator.js";
 import { SpringParameters } from "../animators/SpringAnimator.js";
 
+type WidenNumber<T> = T extends number ? number : T;
+
+
 /**
  * A value that animates to a target value using a spring animation.
  * This **will** cause a re-render when the value changes.
@@ -13,10 +16,15 @@ export function useSpringState<T extends number | number[] | { [field: PropertyK
     options: {
         animator?: Animator,
         initial: T;
-        target: T;
     } & SpringParameters,
 ) {
-    const [state, setState] = useState(options.initial);
-    useSpringValue(options, setState);
-    return state;
+    type N = WidenNumber<T>;
+    const [state, setState] = useState<N>(options.initial as N);
+    const [target, setTarget] = useState<N>(options.initial as N);
+    useSpringValue<N>({
+        ...options,
+        initial: options.initial as N,
+        target
+    }, setState);
+    return { state, target, setTarget } as const;
 }
