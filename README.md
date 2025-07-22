@@ -24,7 +24,7 @@ useSpringValue(
 Or via state
 
 ```tsx
-const opacity = useSpringState({ initial: 0, target: 1, duration_s: 0.8 })
+const { state: opacity, setTarget } = useSpringState({ initial: 0, duration_s: 0.8 })
 
 return <div style={{ opacity }} />
 ```
