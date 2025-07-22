@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>Physics Animator - Self Contained</title>
+    <style>
+        body {
+            margin: 40px;
+            font-family: sans-serif;
+            background: #f9f9f9;
+        }
+
+        .box,
+        .ball {
+            width: 50px;
+            height: 50px;
+            margin-top: 20px;
+        }
+
+        .box {
+            background-color: dodgerblue;
+            border-radius: 6px;
+        }
+
+        .ball {
+            background-color: tomato;
+            border-radius: 50%;
+        }
+
+        button {
+            margin-top: 10px;
+            padding: 10px 20px;
+            font-size: 14px;
+        }
+    </style>
+
+    <script type="importmap">
+    {
+      "imports": {
+        "react": "https://esm.sh/react@18",
+        "react-dom/client": "https://esm.sh/react-dom@18/client",
+        "physics-animator": "../dist/esm/index.js",
+        "physics-animator/react": "../dist/esm/react/index.js",
+        "use-initializer": "../node_modules/use-initializer/dist/esm/useInitializer.js"
+      },
+      "scopes": {
+        "../dist/esm/": {
+          "@haxiomic/event-signal": "../node_modules/@haxiomic/event-signal/dist/esm/EventSignal.js"
+        }
+      }
+    }
+  </script>
+</head>
+
+<body>
+    <div class="header">
+        <h1>Physics Animator React Demo</h1>
+        <p>Uses useSpringState and useSpringValue</p>
+    </div>
+    <script type="module" src="react.js"></script>
+</body>
+
+</html>
