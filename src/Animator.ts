@@ -61,13 +61,13 @@ export class Animator {
 	springTo<Obj>(
 		object: Obj,
 		target: Partial<Public<Obj>>,
-		params: SpringParameters | null
+		params?: SpringParameters | null
 	): void {
 		this.animateTo(
 			object,
 			target,
 			SpringAnimator,
-			params
+			params ?? null
 		);
 	}
 
