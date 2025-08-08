@@ -153,6 +153,9 @@ export class Animator {
 		return listener;
 	}
 
+	/**
+	 * Execute a callback when a specific field of an object is changed by the animator
+	 */
 	onChangeField<Obj, Name extends keyof Obj>(
 		object: Obj,
 		field: Name,
@@ -169,6 +172,9 @@ export class Animator {
 		}
 	}
 
+	/**
+	 * Execute a callback when the object or any of its sub-objects is changed by the animator
+	 */
 	onChange<Obj>(
 		object: Obj,
 		callback: (object: Obj) => void
@@ -196,7 +202,7 @@ export class Animator {
 		}
 
 		enumerateObjects(object, (subObject) => {
-			let signal = this.changeObjectEvents.get(object);
+			let signal = this.changeObjectEvents.get(subObject);
 			if (signal == null) {
 				signal = new EventSignal();
 				this.changeObjectEvents.set(subObject, signal);
@@ -207,7 +213,7 @@ export class Animator {
 			removeCallbacks.push(() => {
 				subListener.remove()
 				if (!signal.hasListeners()) {
-					this.changeObjectEvents.delete(object);
+					this.changeObjectEvents.delete(subObject);
 				}
 			});
 		});
