@@ -8,6 +8,15 @@ import { SpringParameters } from "../animators/SpringAnimator.js";
  * A value that animates to a target value using a spring animation.
  * This will **not** cause a re-render when the value changes.
  * 
+ * Usage example:
+ * ```tsx
+ * useSpringValue(
+ *    { initial: 0, target: 1, duration_s: 0.8 },
+ *    // onChange
+ *    value => el.style.opacity = value
+ * );
+ * ```
+ * 
  * See {@link useSpringState} for a version that does cause re-renders.
  */
 export function useSpringValue<T extends number | number[] | { [field: PropertyKey]: number }>(

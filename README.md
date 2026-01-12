@@ -26,7 +26,7 @@ Or via state
 ```tsx
 const opacitySpring = useSpringState({ initial: 0, duration_s: 0.8, target: opacity })
 
-return <div style={{ opacity: opacitySpring.state }} />
+return <div style={{ opacity: opacitySpring }} />
 ```
 
 It works with arrays and objects

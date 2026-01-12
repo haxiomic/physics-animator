@@ -4,9 +4,11 @@ import { createRoot } from 'react-dom/client';
 import { useSpringState, useSpringValue } from 'physics-animator/react';
 
 function App() {
-    const { state: ballX, setTarget } = useSpringState({
+    const [ballTargetX, setTarget] = useState(0);
+    const ballX = useSpringState({
         initial: 0,
         duration_s: 1,
+        target: ballTargetX
     });
 
     /** @type {React.RefObject<HTMLDivElement | null>} */
