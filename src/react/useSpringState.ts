@@ -5,7 +5,6 @@ import { SpringParameters } from "../animators/SpringAnimator.js";
 
 type WidenNumber<T> = T extends number ? number : T;
 
-
 /**
  * A value that animates to a target value using a spring animation.
  * This **will** cause a re-render when the value changes.
@@ -18,18 +17,20 @@ type WidenNumber<T> = T extends number ? number : T;
  * See {@link useSpringValue} for a version that does not cause re-renders.
  */
 export function useSpringState<T extends number | number[] | { [field: PropertyKey]: number }>(
+    value: T,
     options: {
         animator?: Animator,
-        initial: T;
-        target: T;
-    } & SpringParameters,
+        initial?: T,
+    } & SpringParameters = {
+        duration_s: 0.5,
+    },
 ) {
-    type N = WidenNumber<T>;
-    const [state, setState] = useState<N>(options.initial as N);
-    useSpringValue<N>({
-        ...options,
-        initial: options.initial as N,
-        target: options.target as N,
-    }, setState);
+    // type N = WidenNumber<T>;
+    const [state, setState] = useState<T>(value);
+    useSpringValue<T>(
+        value,
+        options,
+        setState
+    );
     return state;
 }

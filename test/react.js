@@ -5,20 +5,12 @@ import { useSpringState, useSpringValue } from 'physics-animator/react';
 
 function App() {
     const [ballTargetX, setTarget] = useState(0);
-    const ballX = useSpringState({
-        initial: 0,
-        duration_s: 1,
-        target: ballTargetX
-    });
+    const ballX = useSpringState(ballTargetX);
 
     /** @type {React.RefObject<HTMLDivElement | null>} */
     const boxRef = useRef(null);
     const [boxTarget, setBoxTarget] = useState(0);
-    useSpringValue({
-        initial: 0,
-        duration_s: 1,
-        target: boxTarget
-    }, (value) => {
+    useSpringValue(boxTarget, (value) => {
         if (boxRef.current) {
             boxRef.current.style.transform = `translateX(${value * 500}px)`;
         }

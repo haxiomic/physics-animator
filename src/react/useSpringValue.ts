@@ -4,6 +4,11 @@ import { useAnimator } from "./useAnimator.js";
 import { useEffect } from "react";
 import { SpringParameters } from "../animators/SpringAnimator.js";
 
+type SpringOptions<T> = {
+    animator?: Animator,
+    initial?: T,
+} & SpringParameters;
+
 /**
  * A value that animates to a target value using a spring animation.
  * This will **not** cause a re-render when the value changes.
@@ -11,44 +16,55 @@ import { SpringParameters } from "../animators/SpringAnimator.js";
  * Usage example:
  * ```tsx
  * useSpringValue(
- *    { initial: 0, target: 1, duration_s: 0.8 },
+ *    1,
+ *    { initial: 0, duration_s: 0.8 },
  *    // onChange
  *    value => el.style.opacity = value
  * );
  * ```
  * 
+ * Or with default options:
+ * ```tsx
+ * useSpringValue(1, value => el.style.opacity = value);
+ * ```
+ * 
  * See {@link useSpringState} for a version that does cause re-renders.
  */
 export function useSpringValue<T extends number | number[] | { [field: PropertyKey]: number }>(
-    options: {
-        animator?: Animator,
-        initial: T;
-        target: T;
-    } & SpringParameters,
+    value: T,
     onChange: (value: T) => void
+): void;
+export function useSpringValue<T extends number | number[] | { [field: PropertyKey]: number }>(
+    value: T,
+    options: SpringOptions<T>,
+    onChange: (value: T) => void
+): void;
+export function useSpringValue<T extends number | number[] | { [field: PropertyKey]: number }>(
+    value: T,
+    optionsOrOnChange: SpringOptions<T> | ((value: T) => void),
+    maybeOnChange?: (value: T) => void
 ) {
+    const options: SpringOptions<T> = typeof optionsOrOnChange === 'function' 
+        ? { duration_s: 0.5 } 
+        : optionsOrOnChange;
+    const onChange = typeof optionsOrOnChange === 'function' 
+        ? optionsOrOnChange 
+        : maybeOnChange!;
 
     const animator = useAnimator(options.animator);
 
-    const springValue = useInitializer(() => {
-        return {
-            value: structuredClone(options.initial),
-        };
-    });
+    const springObject = useInitializer(() => ({ value: options.initial ?? value }));
 
-    useEffect(() => {
-        let remove = animator.onChange(springValue, () => {
-            onChange(springValue.value);
-        }).remove;
-        return () => {
-            remove();
-        }
-    }, [springValue, onChange]);
+    useEffect(() =>
+        animator.onChange(
+            springObject,
+            () => onChange(springObject.value)
+        ).remove // return the cleanup function
+    , [springObject, onChange]);
 
     animator.springTo(
-        springValue,
-        { value: options.target  },
+        springObject,
+        { value },
         options
     );
-
 }

@@ -12,19 +12,20 @@ Why use this over other animation systems?
 
 This library focuses on simplicity and correctness – I've generally run into design troubles with popular animation libraries like framer motion: for example complex framer animations become convoluted and don't correctly handled interruptions without discontinuities in velocity
 
-For example in react, to animate opacity we could do
+For example in react, to animate DOM opacity we could do
 
 ```tsx
 useSpringValue(
-    { initial: 0, target: 1, duration_s: 0.8 },
-    value => el.style.opacity = value
+    1.0, // target
+    { duration_s: 0.8 },
+    value => el.style.opacity = value // onChange
 )
 ```
 
 Or via state
 
 ```tsx
-const opacitySpring = useSpringState({ initial: 0, duration_s: 0.8, target: opacity })
+const opacitySpring = useSpringState(opacity, { duration_s: 0.8 })
 
 return <div style={{ opacity: opacitySpring }} />
 ```
@@ -32,8 +33,8 @@ return <div style={{ opacity: opacitySpring }} />
 It works with arrays and objects
 
 ```tsx
-const rgb = useSpringState({ initial: [0, 0, 0], target: [1, 0, 0], duration_s: 0.8 })
-const xy = useSpringState({ initial: { x: 0, y: 0 }, target: {x: mouse.x, y: mouse.y}, duration_s: 0.1 })
+const rgb = useSpringState([1, 0, 0], { initial: [0, 0, 0], duration_s: 0.8 })
+const xy = useSpringState({x: mouse.x, y: mouse.y})
 ```
 
 Outside of react we use the animator object
