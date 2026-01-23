@@ -30,16 +30,16 @@ type SpringOptions<T> = {
  * 
  * See {@link useSpringState} for a version that does cause re-renders.
  */
-export function useSpringValue<T extends number | number[] | { [field: PropertyKey]: number }>(
+export function useSpringValue<T extends number | number[] | Record<string, number>>(
     value: T,
     onChange: (value: T) => void
 ): void;
-export function useSpringValue<T extends number | number[] | { [field: PropertyKey]: number }>(
+export function useSpringValue<T extends number | number[] | Record<string, number>>(
     value: T,
     options: SpringOptions<T>,
     onChange: (value: T) => void
 ): void;
-export function useSpringValue<T extends number | number[] | { [field: PropertyKey]: number }>(
+export function useSpringValue<T extends number | number[] | Record<string, number>>(
     value: T,
     optionsOrOnChange: SpringOptions<T> | ((value: T) => void),
     maybeOnChange?: (value: T) => void

@@ -16,7 +16,7 @@ type WidenNumber<T> = T extends number ? number : T;
  * 
  * See {@link useSpringValue} for a version that does not cause re-renders.
  */
-export function useSpringState<T extends number | number[] | { [field: PropertyKey]: number }>(
+export function useSpringState<T extends number | number[] | Record<string, number>>(
     value: T,
     options: {
         animator?: Animator,
