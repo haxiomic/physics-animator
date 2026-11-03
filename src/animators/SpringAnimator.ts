@@ -5,6 +5,9 @@ const defaultSpringParameters = {
     duration_s: 0.5,
 }
 
+/** A spring completes within this of its target, unless its parameters set `precision` */
+const defaultPrecision = 0.0001;
+
 export const SpringAnimator: IFieldAnimator<SpringParameters, SpringState, number> = {
 
     createState(obj, field, target, params) {
@@ -38,7 +41,8 @@ export const SpringAnimator: IFieldAnimator<SpringParameters, SpringState, numbe
         (object[field] as number) = state.x;
 
         // complete the animation if it's close enough to the target and velocity is close to 0
-        if (Math.abs(state.x - state.targetX) < 0.0001 && Math.abs(state.v) < 0.0001) {
+        const precision = params?.precision ?? defaultPrecision;
+        if (Math.abs(state.x - state.targetX) < precision && Math.abs(state.v) < precision) {
             (object[field] as number) = state.targetX;
             return StepResult.Complete;
         } else {
@@ -78,7 +82,18 @@ type SpringState = {
     physicsParameters: Spring.PhysicsParameters,
 }
 
-export type SpringParameters = ExponentialParameters | UnderdampedParameters | Spring.PhysicsParameters;
+type CompletionParameters = {
+    /**
+     * The spring completes once it is within this of its target and moving slower than this per second,
+     * and then sets the field to the target exactly. Default 0.0001
+     *
+     * Use a smaller value for fields in small units that are shown magnified (e.g. angles in radians
+     * driving a camera at high zoom), where that final step would otherwise show as a jump
+     */
+    precision?: number,
+};
+
+export type SpringParameters = (ExponentialParameters | UnderdampedParameters | Spring.PhysicsParameters) & CompletionParameters;
 
 export namespace Spring {
 
