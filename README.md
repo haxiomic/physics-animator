@@ -63,4 +63,10 @@ animator.onChange(character, () => render());
 
 Velocity state is stored within the animator object
 
+A spring completes once it's within `precision` (default 0.0001) of its target and slower than that per second, then sets the target exactly. For values in small units that are shown magnified, such as angles in radians driving a camera at high zoom, pass a smaller one so that final step doesn't show as a jump
+
+```ts
+animator.springTo(view, { longitude, latitude }, { duration_s: 2, precision: 1e-9 })
+```
+
 Tweens are also supported
